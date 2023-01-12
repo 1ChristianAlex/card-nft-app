@@ -13,8 +13,8 @@ class AppTheme {
   static const fuchsia = Color.fromRGBO(235, 69, 158, 1);
   static const red = Color.fromRGBO(237, 66, 69, 1);
 
-  static const softBlack = Color.fromRGBO(44, 47, 51, 1);
-
+  static const darkCharcoal = Color.fromRGBO(44, 47, 51, 1);
+  static const arsenic = Color.fromRGBO(60, 63, 69, 1);
   static const white = Colors.white;
   static const black = Colors.black;
 
