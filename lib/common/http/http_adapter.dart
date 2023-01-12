@@ -1,5 +1,5 @@
 import 'package:card_nft_app/common/http/http_adapter_model.dart';
-import 'package:card_nft_app/common/storage/storage.dart.dart';
+import 'package:card_nft_app/common/jwt_manager/jwt_manager.dart';
 import 'package:dio/dio.dart';
 
 class HttpAdapter {
@@ -17,7 +17,7 @@ class HttpAdapter {
     if (loadBearer) {
       instance.interceptors.add(InterceptorsWrapper(
         onRequest: (options, handler) async {
-          String? token = await Storage().get(TOKEN_KEY);
+          String? token = await JWTManager().get();
 
           // intercept each call and add the Authorization header if token is available
           if (token != null && token.isNotEmpty) {

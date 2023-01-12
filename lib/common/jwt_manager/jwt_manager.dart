@@ -33,6 +33,6 @@ class JWTManager {
     if (token == null) {
       return false;
     }
-    return JwtDecoder.isExpired(token);
+    return !JwtDecoder.isExpired(token);
   }
 }

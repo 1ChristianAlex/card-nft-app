@@ -10,6 +10,7 @@ class DashboardScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Dashboard'),
         backgroundColor: AppTheme.darkCharcoal,
+        leading: null,
       ),
       backgroundColor: AppTheme.arsenic,
       body: const SingleChildScrollView(

@@ -31,7 +31,9 @@ class _LoginFormState extends State<LoginForm> {
       try {
         context.loaderOverlay.show();
         FocusManager.instance.primaryFocus?.unfocus();
-        await authAplication().doLogin(email, password);
+        await authAplication()
+            .doLogin(email, password)
+            .then((value) => {Navigator.pushNamed(context, '/')});
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(e.toString())),
