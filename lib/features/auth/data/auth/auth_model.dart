@@ -1,13 +1,10 @@
+import 'package:card_nft_app/features/auth/application/auth_view_model.dart';
+
 class AuthBody {
   String? email;
   String? password;
 
   AuthBody({this.email, this.password});
-
-  AuthBody.fromJson(Map<String, dynamic> json) {
-    email = json['email'];
-    password = json['password'];
-  }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
@@ -26,13 +23,6 @@ class AuthResponse {
   AuthResponse.fromJson(Map<String, dynamic> json) {
     user = User.fromJson(json['user']);
     token = json['token'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['user'] = user.toJson();
-    data['token'] = token;
-    return data;
   }
 }
 
@@ -60,19 +50,6 @@ class User {
     role = json['role'] != null ? Role.fromJson(json['role']) : null;
     isActive = json['isActive'];
   }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['id'] = id;
-    data['name'] = name;
-    data['lastName'] = lastName;
-    data['email'] = email;
-    if (role != null) {
-      data['role'] = role!.toJson();
-    }
-    data['isActive'] = isActive;
-    return data;
-  }
 }
 
 class Role {
@@ -85,11 +62,49 @@ class Role {
     id = json['id'];
     description = json['description'];
   }
+}
+
+class NewUserBody extends NewUserModel {
+  NewUserBody({
+    required super.name,
+    required super.lastName,
+    required super.email,
+    required super.password,
+  });
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['id'] = id;
-    data['description'] = description;
+    data['name'] = name;
+    data['lastName'] = lastName;
+    data['email'] = email;
+    data['password'] = password;
     return data;
+  }
+}
+
+class UserRegisterResponse {
+  late final int id;
+  late final String name;
+  late final String lastName;
+  late final String email;
+  late final Role role;
+  late final bool isActive;
+
+  UserRegisterResponse({
+    required this.id,
+    required this.name,
+    required this.lastName,
+    required this.email,
+    required this.role,
+    required this.isActive,
+  });
+
+  UserRegisterResponse.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    name = json['name'];
+    lastName = json['lastName'];
+    email = json['email'];
+    role = Role.fromJson(json['role']);
+    isActive = json['isActive'];
   }
 }

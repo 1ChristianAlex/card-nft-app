@@ -1,5 +1,5 @@
 import 'package:card_nft_app/common/jwt_manager/jwt_manager.dart';
-import 'package:card_nft_app/features/login/login_screen.dart';
+import 'package:card_nft_app/features/auth/screens/login_screen.dart';
 import 'package:card_nft_app/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';

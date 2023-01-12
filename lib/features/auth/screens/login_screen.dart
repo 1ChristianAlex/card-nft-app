@@ -1,4 +1,4 @@
-import 'package:card_nft_app/features/login/widgets/login_form.dart';
+import 'package:card_nft_app/features/auth/widgets/login_form.dart';
 import 'package:card_nft_app/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
