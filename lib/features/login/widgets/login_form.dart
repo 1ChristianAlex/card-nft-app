@@ -1,6 +1,7 @@
 import 'package:card_nft_app/features/login/application/auth_application.dart';
 import 'package:card_nft_app/theme/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -24,12 +25,20 @@ class _LoginFormState extends State<LoginForm> {
     if (_formKey.currentState!.validate()) {
       // If the form is valid, display a snackbar. In the real world,
       // you'd often call a server or save the information in a database.
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   const SnackBar(content: Text('Processing Data')),
-      // );
+
       _formKey.currentState?.save();
 
-      await authAplication().doLogin(email, password);
+      try {
+        context.loaderOverlay.show();
+        FocusManager.instance.primaryFocus?.unfocus();
+        await authAplication().doLogin(email, password);
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      } finally {
+        context.loaderOverlay.hide();
+      }
     }
   }
 

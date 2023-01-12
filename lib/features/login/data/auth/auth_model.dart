@@ -30,9 +30,7 @@ class AuthResponse {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    if (user != null) {
-      data['user'] = user!.toJson();
-    }
+    data['user'] = user.toJson();
     data['token'] = token;
     return data;
   }

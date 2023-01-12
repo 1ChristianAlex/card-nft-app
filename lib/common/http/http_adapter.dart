@@ -1,30 +1,9 @@
 import 'package:card_nft_app/common/storage/storage.dart.dart';
-import 'package:http/http.dart' as http;
-
-class HttpAuthClient extends http.BaseClient {
-  late final bool useAuth;
-  HttpAuthClient(this.useAuth);
-
-  @override
-  Future<http.StreamedResponse> send(http.BaseRequest request) async {
-    if (useAuth) {
-      String? token = await Storage().get('Bearer');
-
-      // intercept each call and add the Authorization header if token is available
-      if (token != null && token.isNotEmpty) {
-        request.headers.putIfAbsent('Authorization', () => 'Bearer $token');
-      }
-    }
-
-    request.headers.addAll({'content-type': 'application/json; charset=UTF-8'});
-
-    return request.send();
-  }
-}
+import 'package:dio/dio.dart';
 
 class HttpAdapter {
   String host = '192.168.0.165:3000';
-  late final http.Client instance;
+  late final instance = Dio();
 
   HttpAdapter({
     String? domain,
@@ -34,31 +13,62 @@ class HttpAdapter {
       host = domain;
     }
 
-    instance = HttpAuthClient(loadBearer);
+    if (loadBearer) {
+      instance.interceptors.add(InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          String? token = await Storage().get('Bearer');
+
+          // intercept each call and add the Authorization header if token is available
+          if (token != null && token.isNotEmpty) {
+            options.headers.putIfAbsent('Authorization', () => 'Bearer $token');
+          }
+
+          return handler.next(options);
+        },
+      ));
+    }
   }
 
-  Future<http.Response> get(
+  Future<Response<T>> get<T>(
     String route,
     Map<String, String>? paramns,
     Map<String, String>? headers,
   ) {
-    return instance.get(
-      Uri.http(host, route, paramns),
-      headers: headers,
-    );
+    try {
+      return instance.getUri<T>(Uri.http(host, route, paramns),
+          options: Options(headers: headers));
+    } on DioError {
+      rethrow;
+    }
   }
 
-  Future<http.Response> post(
-    String route,
-    Object? body,
-    Map<String, String>? paramns,
-    Map<String, String>? headers,
-  ) {
-    var uri = Uri.http(host, route, paramns);
-    return instance.post(
-      uri,
-      headers: headers,
-      body: body,
-    );
+  Future<Response<T>> post<T>(String route, dynamic body,
+      {Map<String, String>? paramns, Map<String, String>? headers}) {
+    try {
+      return instance.postUri<T>(Uri.http(host, route, paramns),
+          options: Options(headers: headers), data: body);
+    } on DioError {
+      rethrow;
+    }
+  }
+
+  Future<Response<T>> put<T>(String route, dynamic body,
+      {Map<String, String>? paramns, Map<String, String>? headers}) {
+    try {
+      return instance.putUri<T>(Uri.http(host, route, paramns),
+          options: Options(headers: headers), data: body);
+    } on DioError {
+      rethrow;
+    }
+  }
+
+  Future<Response<T>> delete<T>(String route, dynamic body,
+      {Map<String, String>? paramns, Map<String, String>? headers}) {
+    try {
+      return instance.deleteUri<T>(Uri.http(host, route, paramns),
+          options: Options(headers: headers), data: body);
+    } on DioError {
+      rethrow;
+    }
   }
 }

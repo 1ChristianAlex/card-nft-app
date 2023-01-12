@@ -1,5 +1,6 @@
 import 'package:card_nft_app/theme/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 
 import 'features/login/login_screen.dart';
 

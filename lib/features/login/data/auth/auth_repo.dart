@@ -1,18 +1,26 @@
 import 'dart:convert';
 
 import 'package:card_nft_app/common/http/http_adapter.dart';
+import 'package:card_nft_app/common/http/http_adapter_model.dart';
 import 'package:card_nft_app/features/login/data/auth/auth_model.dart';
+import 'package:dio/dio.dart';
 
-class AuthRepo {
+class AuthRepositorie {
   final HttpAdapter request;
 
-  const AuthRepo(this.request);
+  const AuthRepositorie(this.request);
 
   Future<AuthResponse> login(String email, String password) async {
-    var json = AuthBody(email: email, password: password).toJson();
-    var response =
-        await request.post('/auth/login', jsonEncode(json), null, null);
+    try {
+      var json = AuthBody(email: email, password: password).toJson();
+      var response = await request.post(
+        '/auth/login',
+        jsonEncode(json),
+      );
 
-    return AuthResponse.fromJson(jsonDecode(response.body));
+      return AuthResponse.fromJson(response.data);
+    } on DioError catch (e) {
+      throw ApiException.fromJson(e.response!.data);
+    }
   }
 }
