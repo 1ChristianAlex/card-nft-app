@@ -1,6 +1,7 @@
 import 'package:card_nft_app/common/widgets/form/form_button.dart';
 import 'package:card_nft_app/common/widgets/form/input_email.dart';
 import 'package:card_nft_app/common/widgets/form/input_password.dart';
+import 'package:card_nft_app/constants.dart';
 import 'package:card_nft_app/features/auth/application/auth_application.dart';
 import 'package:card_nft_app/theme/theme.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +37,7 @@ class _LoginFormState extends State<LoginForm> {
         FocusManager.instance.primaryFocus?.unfocus();
         await authConnetion
             .doLogin(email, password)
-            .then((value) => {Navigator.pushNamed(context, '/')});
+            .then((value) => {Navigator.pushNamed(context, RouterPaths.home)});
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(e.toString())),
