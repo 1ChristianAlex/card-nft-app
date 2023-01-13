@@ -16,6 +16,12 @@ class JWTManager {
     return token;
   }
 
+  Future delete() async {
+    var token = await _storage.delete(TOKEN_KEY);
+
+    return token;
+  }
+
   Future<JWTDecoded> decode() async {
     var token = await get();
 

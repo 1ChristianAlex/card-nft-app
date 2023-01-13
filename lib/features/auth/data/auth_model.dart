@@ -34,13 +34,14 @@ class User {
   Role? role;
   bool? isActive;
 
-  User(
-      {this.id,
-      this.name,
-      this.lastName,
-      this.email,
-      this.role,
-      this.isActive});
+  User({
+    this.id,
+    this.name,
+    this.lastName,
+    this.email,
+    this.role,
+    this.isActive,
+  });
 
   User.fromJson(Map<String, dynamic> json) {
     id = json['id'];

@@ -34,7 +34,7 @@ class _LoginFormState extends State<LoginForm> {
       try {
         context.loaderOverlay.show();
         FocusManager.instance.primaryFocus?.unfocus();
-        await authAplication()
+        await authConnetion
             .doLogin(email, password)
             .then((value) => {Navigator.pushNamed(context, '/')});
       } catch (e) {

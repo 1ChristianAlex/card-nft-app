@@ -1,32 +1,33 @@
-import 'package:card_nft_app/common/jwt_manager/jwt_manager.dart';
+import 'package:card_nft_app/common/state/app/app_state.dart';
+import 'package:card_nft_app/common/state/user/user_state.dart';
+import 'package:card_nft_app/features/auth/application/auth_application.dart';
 import 'package:card_nft_app/features/auth/screens/login_screen.dart';
-import 'package:card_nft_app/theme/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:flutter_redux/flutter_redux.dart';
 
-class RouterAuth extends StatelessWidget {
+class RouterAuth extends StatefulWidget {
   final Widget privateScreen;
 
   const RouterAuth({super.key, required this.privateScreen});
 
   @override
+  State<RouterAuth> createState() => _RouterAuthState();
+}
+
+class _RouterAuthState extends State<RouterAuth> {
+  @override
+  void initState() {
+    super.initState();
+    authConnetion.loadUserFromToken();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return FutureBuilder<bool>(
-      future: JWTManager().isAuth(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const Scaffold(
-            backgroundColor: AppTheme.arsenic,
-            body: Center(
-              child: SpinKitRing(
-                color: AppTheme.green,
-                size: 50.0,
-              ),
-            ),
-          );
-        }
-        if (snapshot.data == true) {
-          return privateScreen;
+    return StoreConnector<AppState, UserState?>(
+      converter: (store) => store.state.user,
+      builder: (context, user) {
+        if (user != null) {
+          return widget.privateScreen;
         } else {
           return const LoginScreen();
         }

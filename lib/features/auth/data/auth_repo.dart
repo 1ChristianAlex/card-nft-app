@@ -1,9 +1,8 @@
 import 'dart:convert';
-
 import 'package:card_nft_app/common/http/http_adapter.dart';
 import 'package:card_nft_app/common/http/http_adapter_model.dart';
 import 'package:card_nft_app/features/auth/application/auth_view_model.dart';
-import 'package:card_nft_app/features/auth/data/auth/auth_model.dart';
+import 'package:card_nft_app/features/auth/data/auth_model.dart';
 import 'package:dio/dio.dart';
 
 class AuthRepositorie {

@@ -38,14 +38,14 @@ class _RegisterFormState extends State<RegisterForm> {
         context.loaderOverlay.show();
         FocusManager.instance.primaryFocus?.unfocus();
 
-        await authAplication().register(NewUserModel(
+        await authConnetion.register(NewUserModel(
           name: name,
           lastName: lastName,
           email: email,
           password: password,
         ));
 
-        await authAplication()
+        await authConnetion
             .doLogin(email, password)
             .then((value) => {Navigator.pushNamed(context, '/')});
       } catch (e) {
