@@ -35,9 +35,8 @@ class _LoginFormState extends State<LoginForm> {
       try {
         context.loaderOverlay.show();
         FocusManager.instance.primaryFocus?.unfocus();
-        await authConnetion
-            .doLogin(email, password)
-            .then((value) => {Navigator.pushNamed(context, RouterPaths.home)});
+        await authConnetion.doLogin(email, password).then((value) =>
+            {Navigator.pushReplacementNamed(context, RouterPaths.home)});
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(e.toString())),
@@ -49,7 +48,7 @@ class _LoginFormState extends State<LoginForm> {
   }
 
   void navigateRegisterScreen() {
-    Navigator.pushNamed(context, '/register');
+    Navigator.pushNamed(context, RouterPaths.register);
   }
 
   @override

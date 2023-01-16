@@ -1,9 +1,8 @@
-import 'package:card_nft_app/common/state/app/app_state.dart';
-import 'package:card_nft_app/common/state/user/user_state.dart';
+import 'package:card_nft_app/constants.dart';
 import 'package:card_nft_app/features/auth/application/auth_application.dart';
+import 'package:card_nft_app/features/dashboard/widgets/deck_data_cards.dart';
 import 'package:card_nft_app/theme/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_redux/flutter_redux.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -14,24 +13,20 @@ class DashboardScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Dashboard'),
         backgroundColor: AppTheme.darkCharcoal,
-        leading: null,
+        automaticallyImplyLeading: false,
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           authConnetion.logout();
+
+          Navigator.pushNamed(context, RouterPaths.login);
         },
         backgroundColor: Colors.pink,
         child: const Icon(Icons.logout_outlined),
       ),
       backgroundColor: AppTheme.arsenic,
-      body: SingleChildScrollView(
-        child: StoreConnector<AppState, UserState?>(
-          converter: (store) => store.state.user,
-          builder: (context, user) {
-            var name = user!.name;
-            return (Text('Welcome $name'));
-          },
-        ),
+      body: const SingleChildScrollView(
+        child: DeckDataCards(),
       ),
     );
   }

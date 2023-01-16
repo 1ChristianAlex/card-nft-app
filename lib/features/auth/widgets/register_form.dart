@@ -46,9 +46,8 @@ class _RegisterFormState extends State<RegisterForm> {
           password: password,
         ));
 
-        await authConnetion
-            .doLogin(email, password)
-            .then((value) => {Navigator.pushNamed(context, RouterPaths.home)});
+        await authConnetion.doLogin(email, password).then((value) =>
+            {Navigator.pushReplacementNamed(context, RouterPaths.home)});
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(e.toString())),

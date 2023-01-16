@@ -45,9 +45,15 @@ class AuthAplication extends ApplicationState {
     return userRegister;
   }
 
-  Future<void> loadUserFromToken() async {
+  Future<bool> loadUserFromToken() async {
     var jwtManager = JWTManager();
-    if (store.state.user == null && await jwtManager.isAuth()) {
+    var isAuth = await jwtManager.isAuth();
+
+    if (isAuth == false) {
+      return false;
+    }
+
+    if (store.state.user == null && isAuth) {
       var user = await jwtManager.decode();
 
       store.dispatch(
@@ -66,6 +72,8 @@ class AuthAplication extends ApplicationState {
         ),
       );
     }
+
+    return true;
   }
 
   Future<void> logout() async {
