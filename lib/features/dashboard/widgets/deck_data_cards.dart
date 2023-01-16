@@ -26,50 +26,48 @@ class _DeckDataCardsState extends State<DeckDataCards> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(AppTheme.spacing),
-      child: StoreConnector<AppState, DeckState>(
-        converter: (store) => store.state.deck!,
-        builder: (context, deck) => GridView.count(
-          crossAxisSpacing: AppTheme.spacing,
-          mainAxisSpacing: AppTheme.spacing,
-          crossAxisCount: 2,
-          childAspectRatio: 0.9,
-          shrinkWrap: true,
-          children: [
-            ButtonCardList(
-              label: 'Gambles',
-              value: deck.gambles.toString(),
-              iconLabel: const Icon(Icons.casino_sharp),
-            ),
-            ButtonCardList(
-              label: 'Coins',
-              value: deck.coins.toString(),
-              iconLabel: const Icon(
-                Icons.monetization_on,
-                color: AppTheme.green,
+  Widget build(BuildContext context) => Container(
+        margin: const EdgeInsets.all(AppTheme.spacing),
+        child: StoreConnector<AppState, DeckState?>(
+          converter: (store) => store.state.deck,
+          builder: (context, deck) => GridView.count(
+            crossAxisSpacing: AppTheme.spacing,
+            mainAxisSpacing: AppTheme.spacing,
+            crossAxisCount: 2,
+            childAspectRatio: 0.9,
+            shrinkWrap: true,
+            children: [
+              ButtonCardList(
+                label: 'Gambles',
+                value: deck == null ? '' : deck.gambles.toString(),
+                iconLabel: const Icon(Icons.casino_sharp),
               ),
-            ),
-            ButtonCardList(
-              label: 'Claims',
-              value: deck.claims.toString(),
-              iconLabel: const Icon(
-                Icons.done,
-                color: AppTheme.blurple,
+              ButtonCardList(
+                label: 'Coins',
+                value: deck == null ? '' : deck.coins.toString(),
+                iconLabel: const Icon(
+                  Icons.monetization_on,
+                  color: AppTheme.green,
+                ),
               ),
-            ),
-            ButtonCardList(
-              label: 'Amount',
-              value: deck.deckAmount.toString(),
-              iconLabel: const Icon(
-                Icons.collections,
-                color: AppTheme.white,
+              ButtonCardList(
+                label: 'Claims',
+                value: deck == null ? '' : deck.claims.toString(),
+                iconLabel: const Icon(
+                  Icons.done,
+                  color: AppTheme.blurple,
+                ),
               ),
-            ),
-          ],
+              ButtonCardList(
+                label: 'Amount',
+                value: deck == null ? '' : deck.deckAmount.toString(),
+                iconLabel: const Icon(
+                  Icons.collections,
+                  color: AppTheme.white,
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 }

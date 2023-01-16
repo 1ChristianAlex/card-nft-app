@@ -1,10 +1,11 @@
 import 'package:card_nft_app/theme/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:skeletons/skeletons.dart';
 
-class ButtonCardList extends StatelessWidget {
+class ButtonCardList extends StatefulWidget {
   final String label;
 
-  final String value;
+  final String? value;
 
   final Icon iconLabel;
 
@@ -16,7 +17,24 @@ class ButtonCardList extends StatelessWidget {
   });
 
   @override
+  State<ButtonCardList> createState() => _ButtonCardListState();
+}
+
+class _ButtonCardListState extends State<ButtonCardList> {
+  @override
   Widget build(BuildContext context) {
+    var cardWidth = (MediaQuery.of(context).size.width + AppTheme.spacing) / 2;
+    var cardHeight = cardWidth + (cardWidth * 0.1);
+
+    if (!(widget.value != null && widget.value!.isNotEmpty)) {
+      return SkeletonLine(
+        style: SkeletonLineStyle(
+          height: cardHeight,
+          width: cardWidth,
+          borderRadius: BorderRadius.circular(8),
+        ),
+      );
+    }
     return ElevatedButton(
       onPressed: () {},
       style: ElevatedButton.styleFrom(
@@ -34,10 +52,10 @@ class ButtonCardList extends StatelessWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.only(right: AppTheme.spacing / 2),
-                child: iconLabel,
+                child: widget.iconLabel,
               ),
               Text(
-                label,
+                widget.label,
                 style: const TextStyle(fontSize: 22),
               ),
             ],
@@ -46,7 +64,7 @@ class ButtonCardList extends StatelessWidget {
             height: AppTheme.spacing,
           ),
           Text(
-            value,
+            widget.value!,
             style: const TextStyle(fontSize: 26),
           ),
         ],

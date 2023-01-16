@@ -1,8 +1,10 @@
 import 'package:card_nft_app/common/state/app/app_state.dart';
 import 'package:card_nft_app/common/state/store.dart';
+import 'package:card_nft_app/common/widgets/router_auth/route_auth.dart';
 import 'package:card_nft_app/constants.dart';
 import 'package:card_nft_app/features/auth/screens/register_screen.dart';
 import 'package:card_nft_app/features/dashboard/dashboard_screen.dart';
+import 'package:card_nft_app/features/gumble/gumble_screen.dart';
 import 'package:card_nft_app/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
@@ -34,7 +36,8 @@ class MyApp extends StatelessWidget {
         routes: {
           RouterPaths.login: (context) => const LoginScreen(),
           RouterPaths.register: (context) => const RegisterScreen(),
-          RouterPaths.home: (context) => const DashboardScreen(),
+          RouterPaths.home: (context) => const RouterAuth(DashboardScreen()),
+          RouterPaths.gumble: (context) => const RouterAuth(GumbleScreen()),
         },
       ),
     );
