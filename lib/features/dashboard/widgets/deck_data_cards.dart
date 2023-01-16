@@ -1,6 +1,8 @@
 import 'package:card_nft_app/common/state/app/app_state.dart';
 import 'package:card_nft_app/common/state/deck/deck_state.dart';
 import 'package:card_nft_app/features/dashboard/application/deck_application.dart';
+import 'package:card_nft_app/features/dashboard/widgets/button_card_list.dart';
+import 'package:card_nft_app/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 
@@ -25,9 +27,49 @@ class _DeckDataCardsState extends State<DeckDataCards> {
 
   @override
   Widget build(BuildContext context) {
-    return StoreConnector<AppState, DeckState?>(
-      converter: (store) => store.state.deck,
-      builder: (context, vm) => Text((vm?.id ?? '').toString()),
+    return Container(
+      margin: const EdgeInsets.all(AppTheme.spacing),
+      child: StoreConnector<AppState, DeckState>(
+        converter: (store) => store.state.deck!,
+        builder: (context, deck) => GridView.count(
+          crossAxisSpacing: AppTheme.spacing,
+          mainAxisSpacing: AppTheme.spacing,
+          crossAxisCount: 2,
+          childAspectRatio: 0.9,
+          shrinkWrap: true,
+          children: [
+            ButtonCardList(
+              label: 'Gambles',
+              value: deck.gambles.toString(),
+              iconLabel: const Icon(Icons.casino_sharp),
+            ),
+            ButtonCardList(
+              label: 'Coins',
+              value: deck.coins.toString(),
+              iconLabel: const Icon(
+                Icons.monetization_on,
+                color: AppTheme.green,
+              ),
+            ),
+            ButtonCardList(
+              label: 'Claims',
+              value: deck.claims.toString(),
+              iconLabel: const Icon(
+                Icons.done,
+                color: AppTheme.blurple,
+              ),
+            ),
+            ButtonCardList(
+              label: 'Amount',
+              value: deck.deckAmount.toString(),
+              iconLabel: const Icon(
+                Icons.collections,
+                color: AppTheme.white,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

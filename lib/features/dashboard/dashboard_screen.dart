@@ -25,9 +25,7 @@ class DashboardScreen extends StatelessWidget {
         child: const Icon(Icons.logout_outlined),
       ),
       backgroundColor: AppTheme.arsenic,
-      body: const SingleChildScrollView(
-        child: DeckDataCards(),
-      ),
+      body: const DeckDataCards(),
     );
   }
 }
