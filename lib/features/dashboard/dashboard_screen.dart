@@ -1,6 +1,10 @@
+import 'package:card_nft_app/common/state/app/app_state.dart';
+import 'package:card_nft_app/common/state/deck/deck_state.dart';
+import 'package:card_nft_app/constants.dart';
 import 'package:card_nft_app/features/dashboard/widgets/deck_data_cards.dart';
 import 'package:card_nft_app/theme/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_redux/flutter_redux.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -31,12 +35,18 @@ class DashboardScreen extends StatelessWidget {
         elevation: 20.0,
         child: Container(height: 50.0),
       ),
-      floatingActionButton: FloatingActionButton(
-        tooltip: 'Increment Counter',
-        backgroundColor: AppTheme.blurple,
-        onPressed: () {},
-        elevation: 5,
-        child: const Icon(Icons.casino_sharp),
+      floatingActionButton: StoreConnector<AppState, DeckState?>(
+        converter: (store) => store.state.deck,
+        builder: (context, deck) => FloatingActionButton(
+          backgroundColor: AppTheme.blurple,
+          onPressed: (deck != null && deck.gambles > 0)
+              ? () {
+                  Navigator.pushNamed(context, RouterPaths.gumble);
+                }
+              : null,
+          elevation: 5,
+          child: const Icon(Icons.casino_sharp),
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );

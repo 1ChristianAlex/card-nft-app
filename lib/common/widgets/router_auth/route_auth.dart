@@ -17,11 +17,6 @@ class RouterAuth extends StatefulWidget {
 }
 
 class _RouterAuthState extends State<RouterAuth> {
-  @override
-  void initState() {
-    super.initState();
-  }
-
   Future<bool> verifyRouteAccess() async {
     var hasAccessResult = await authConnetion.loadUserFromToken().then(
       (value) {
