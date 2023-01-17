@@ -16,6 +16,10 @@ class GumbleApplication extends ApplicationState {
 
     return deck;
   }
+
+  Future<void> claimCard(int cardId) async {
+    await repo.claim(cardId);
+  }
 }
 
 GumbleApplication get gumbleConnection {

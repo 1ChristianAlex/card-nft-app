@@ -19,6 +19,7 @@ class _CardSwiperDeckState extends State<CardSwiperDeck> {
   bool isStarded = false;
 
   List<card_model.Card> cards = [];
+  late card_model.Card currentCard;
 
   SwiperController swiperControl = SwiperController();
 
@@ -42,6 +43,7 @@ class _CardSwiperDeckState extends State<CardSwiperDeck> {
     newCards[index] = cardFetch;
     setState(() {
       cards = [...newCards];
+      currentCard = cardFetch;
     });
 
     return cardFetch;
@@ -68,34 +70,30 @@ class _CardSwiperDeckState extends State<CardSwiperDeck> {
           Expanded(
             child: Swiper(
               itemBuilder: (BuildContext context, int index) {
-                var cardItem = cards[index];
-                var thumb = cardItem.thumbnail!.first;
+                var currentItem = cards[index];
+                var thumb = currentItem.thumbnail!.first;
 
                 return Stack(
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8.0),
-                      child: AnimatedContainer(
-                        duration: const Duration(seconds: 9),
-                        child: thumb.path == imageBackLoading
-                            ? Image.asset(
-                                thumb.path!,
-                                fit: BoxFit.fill,
-                                height:
-                                    MediaQuery.of(context).size.height * 0.90,
-                              )
-                            : Image.network(
-                                thumb.path!,
-                                fit: BoxFit.fill,
-                                height:
-                                    MediaQuery.of(context).size.height * 0.90,
-                              ),
-                      ),
+                      child: thumb.path == imageBackLoading
+                          ? Image.asset(
+                              thumb.path!,
+                              fit: BoxFit.fill,
+                              height: MediaQuery.of(context).size.height * 0.90,
+                            )
+                          : Image.network(
+                              thumb.path!,
+                              fit: BoxFit.fill,
+                              height: MediaQuery.of(context).size.height * 0.90,
+                              width: MediaQuery.of(context).size.width * 0.85,
+                            ),
                     ),
                     Container(
                       alignment: Alignment.bottomCenter,
                       child: Text(
-                        cardItem.name ?? '',
+                        currentItem.name ?? '',
                         style: const TextStyle(color: AppTheme.white),
                       ),
                     )
@@ -103,7 +101,8 @@ class _CardSwiperDeckState extends State<CardSwiperDeck> {
                 );
               },
               itemCount: cards.length,
-              itemWidth: 300.0,
+              itemWidth: MediaQuery.of(context).size.width * 0.85,
+              itemHeight: MediaQuery.of(context).size.height * 0.90,
               layout: SwiperLayout.STACK,
               allowImplicitScrolling: false,
               loop: false,
@@ -138,7 +137,11 @@ class _CardSwiperDeckState extends State<CardSwiperDeck> {
                   child: const Icon(Icons.close, size: 32),
                 ),
                 ElevatedButton(
-                  onPressed: isStarded ? () {} : null,
+                  onPressed: isStarded
+                      ? () {
+                          gumbleConnection.claimCard(currentCard.id!);
+                        }
+                      : null,
                   style: ElevatedButton.styleFrom(
                     shape: const CircleBorder(),
                     padding: const EdgeInsets.all(AppTheme.spacing * 2),
