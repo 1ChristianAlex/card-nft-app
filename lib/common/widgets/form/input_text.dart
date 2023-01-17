@@ -1,3 +1,4 @@
+import 'package:card_nft_app/common/widgets/form/form_message.dart';
 import 'package:flutter/material.dart';
 import 'input_decoration.dart';
 
@@ -14,7 +15,7 @@ class InputText extends StatelessWidget {
       decoration: TextInputDecorated.textInput(hintText: inputName),
       validator: (value) {
         if (value == null || value.isEmpty) {
-          return '$inputName is required';
+          return FormMessage.emailRequired(inputName);
         }
 
         return null;

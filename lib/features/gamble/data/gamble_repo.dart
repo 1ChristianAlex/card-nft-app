@@ -5,12 +5,12 @@ import 'package:card_nft_app/common/http/http_adapter_model.dart';
 import 'package:card_nft_app/features/card/application/card_model.dart';
 import 'package:dio/dio.dart';
 
-class GumbleRepositorie {
+class GambleRepositorie {
   final HttpAdapter request;
 
-  const GumbleRepositorie(this.request);
+  const GambleRepositorie(this.request);
 
-  Future<Card> doGumble() async {
+  Future<Card> doGamble() async {
     try {
       var response = await request.get('/card/gamble', null, null);
 

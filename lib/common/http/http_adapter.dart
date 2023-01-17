@@ -19,7 +19,6 @@ class HttpAdapter {
         onRequest: (options, handler) async {
           String? token = await JWTManager().get();
 
-          // intercept each call and add the Authorization header if token is available
           if (token != null && token.isNotEmpty) {
             options.headers
                 .putIfAbsent('Authorization', () => '$TOKEN_KEY $token');

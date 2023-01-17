@@ -1,5 +1,6 @@
 import 'package:card_nft_app/common/http/http_adapter_model.dart';
 import 'package:card_nft_app/common/jwt_manager/jwt_manager_model.dart';
+import 'package:card_nft_app/common/jwt_manager/jwt_messages.dart';
 import 'package:card_nft_app/common/storage/storage.dart.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 
@@ -26,7 +27,7 @@ class JWTManager {
     var token = await get();
 
     if (token == null) {
-      throw Exception('Token não existe');
+      throw Exception(JWTMessages.notFound);
     }
     Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
 

@@ -2,17 +2,17 @@ import 'package:card_nft_app/common/application_data/application_state.dart';
 import 'package:card_nft_app/common/http/http_adapter.dart';
 import 'package:card_nft_app/common/state/store.dart';
 import 'package:card_nft_app/features/card/application/card_model.dart';
-import 'package:card_nft_app/features/gumble/data/gumble_repo.dart';
+import 'package:card_nft_app/features/gamble/data/gamble_repo.dart';
 
-class GumbleApplication extends ApplicationState {
-  late GumbleRepositorie repo;
+class GambleApplication extends ApplicationState {
+  late GambleRepositorie repo;
 
-  GumbleApplication({required super.store, required super.adapter}) {
-    repo = GumbleRepositorie(adapter);
+  GambleApplication({required super.store, required super.adapter}) {
+    repo = GambleRepositorie(adapter);
   }
 
-  Future<Card> gumbleCard() async {
-    var deck = await repo.doGumble();
+  Future<Card> gambleCard() async {
+    var deck = await repo.doGamble();
 
     return deck;
   }
@@ -22,8 +22,8 @@ class GumbleApplication extends ApplicationState {
   }
 }
 
-GumbleApplication get gumbleConnection {
-  return GumbleApplication(
+GambleApplication get gambleConnection {
+  return GambleApplication(
     adapter: HttpAdapter(loadBearer: true),
     store: appStore,
   );

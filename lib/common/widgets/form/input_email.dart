@@ -1,3 +1,4 @@
+import 'package:card_nft_app/common/widgets/form/form_message.dart';
 import 'package:flutter/material.dart';
 
 import '../../text_validation/text_validation.dart';
@@ -14,12 +15,12 @@ class InputEmail extends StatelessWidget {
       decoration: TextInputDecorated.textInput(hintText: 'Email'),
       validator: (value) {
         if (value == null || value.isEmpty) {
-          return 'Email is required';
+          return FormMessage.emailRequired('Email');
         }
         var isEmailValid = TextValidation.isEmail(value);
 
         if (!isEmailValid) {
-          return 'Email is not valid';
+          return FormMessage.emailInvalid;
         }
 
         return null;

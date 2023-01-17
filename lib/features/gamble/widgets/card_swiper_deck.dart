@@ -1,7 +1,7 @@
 import 'package:card_nft_app/common/state/store.dart';
 import 'package:card_nft_app/features/card/application/card_model.dart'
     as card_model;
-import 'package:card_nft_app/features/gumble/application/gumble_application.dart';
+import 'package:card_nft_app/features/gamble/application/gamble_application.dart';
 import 'package:card_nft_app/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:card_swiper/card_swiper.dart';
@@ -36,7 +36,7 @@ class _CardSwiperDeckState extends State<CardSwiperDeck> {
   }
 
   Future<card_model.Card> getCardGumble({int index = 0}) async {
-    var cardFetch = await gumbleConnection.gumbleCard();
+    var cardFetch = await gambleConnection.gambleCard();
 
     var newCards = List<card_model.Card>.from(cards);
 
@@ -139,7 +139,7 @@ class _CardSwiperDeckState extends State<CardSwiperDeck> {
                 ElevatedButton(
                   onPressed: isStarded
                       ? () {
-                          gumbleConnection.claimCard(currentCard.id!);
+                          gambleConnection.claimCard(currentCard.id!);
                         }
                       : null,
                   style: ElevatedButton.styleFrom(
