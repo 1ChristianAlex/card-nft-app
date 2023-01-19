@@ -1,7 +1,8 @@
 import 'package:card_nft_app/common/application_data/application_state.dart';
 import 'package:card_nft_app/common/http/http_adapter.dart';
 import 'package:card_nft_app/common/state/store.dart';
-import 'package:card_nft_app/features/card/application/card_model.dart';
+import 'package:card_nft_app/features/dashboard/application/deck_application.dart';
+import 'package:card_nft_app/features/gamble/application/gample_model.dart';
 import 'package:card_nft_app/features/gamble/data/gamble_repo.dart';
 
 class GambleApplication extends ApplicationState {
@@ -11,14 +12,15 @@ class GambleApplication extends ApplicationState {
     repo = GambleRepositorie(adapter);
   }
 
-  Future<Card> gambleCard() async {
-    var deck = await repo.doGamble();
+  Future<GambleModel> gambleCard() async {
+    var response = await repo.doGamble();
 
-    return deck;
+    return GambleModel(card: response.card!, expiresIn: response.expiresIn!);
   }
 
   Future<void> claimCard(int cardId) async {
     await repo.claim(cardId);
+    await deckConnection.getDeckAndDispatch();
   }
 }
 

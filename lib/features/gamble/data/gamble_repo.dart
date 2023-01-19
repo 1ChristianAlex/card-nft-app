@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:card_nft_app/common/http/http_adapter.dart';
 import 'package:card_nft_app/common/http/http_adapter_model.dart';
-import 'package:card_nft_app/features/card/application/card_model.dart';
+import 'package:card_nft_app/features/gamble/data/gamble_model.dart';
 import 'package:dio/dio.dart';
 
 class GambleRepositorie {
@@ -10,11 +10,11 @@ class GambleRepositorie {
 
   const GambleRepositorie(this.request);
 
-  Future<Card> doGamble() async {
+  Future<GambleResponse> doGamble() async {
     try {
       var response = await request.get('/card/gamble', null, null);
 
-      return Card.fromJson(response.data);
+      return GambleResponse.fromJson(response.data);
     } on DioError catch (e) {
       throw ApiException.fromJson(e.response!.data);
     }

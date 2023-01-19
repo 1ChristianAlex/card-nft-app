@@ -1,4 +1,4 @@
-class Card {
+class CardModel {
   int? id;
   String? name;
   String? description;
@@ -7,7 +7,7 @@ class Card {
   Tier? tier;
   List<Thumbnail>? thumbnail;
 
-  Card(
+  CardModel(
       {this.id,
       this.name,
       this.description,
@@ -16,7 +16,7 @@ class Card {
       this.tier,
       this.thumbnail});
 
-  Card.fromJson(Map<String, dynamic> json) {
+  CardModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     name = json['name'];
     description = json['description'];

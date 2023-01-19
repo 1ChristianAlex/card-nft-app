@@ -41,7 +41,7 @@ class DashboardScreen extends StatelessWidget {
           backgroundColor: AppTheme.blurple,
           onPressed: (deck != null && deck.gambles > 0)
               ? () {
-                  Navigator.pushNamed(context, RouterPaths.gamble);
+                  Navigator.pushReplacementNamed(context, RouterPaths.gamble);
                 }
               : null,
           elevation: 5,

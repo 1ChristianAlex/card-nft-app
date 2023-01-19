@@ -1,10 +1,19 @@
+import 'dart:async';
+
+import 'package:card_nft_app/common/state/app/app_state.dart';
+import 'package:card_nft_app/common/state/deck/deck_state.dart';
 import 'package:card_nft_app/common/state/store.dart';
+import 'package:card_nft_app/constants.dart';
 import 'package:card_nft_app/features/card/application/card_model.dart'
     as card_model;
 import 'package:card_nft_app/features/gamble/application/gamble_application.dart';
+import 'package:card_nft_app/features/gamble/application/gample_model.dart';
+import 'package:card_nft_app/features/gamble/widgets/card_item_info.dart';
+import 'package:card_nft_app/features/gamble/widgets/card_time_claim_progress.dart';
 import 'package:card_nft_app/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:card_swiper/card_swiper.dart';
+import 'package:flutter_redux/flutter_redux.dart';
 
 class CardSwiperDeck extends StatefulWidget {
   const CardSwiperDeck({super.key});
@@ -16,10 +25,11 @@ class CardSwiperDeck extends StatefulWidget {
 class _CardSwiperDeckState extends State<CardSwiperDeck> {
   final imageBackLoading = 'assets/back-image-card.jpg';
 
-  bool isStarded = false;
+  List<GambleModel> cards = [];
+  GambleModel? currentCard;
+  bool isLoading = false;
 
-  List<card_model.Card> cards = [];
-  late card_model.Card currentCard;
+  bool isStarted = false;
 
   SwiperController swiperControl = SwiperController();
 
@@ -29,31 +39,67 @@ class _CardSwiperDeckState extends State<CardSwiperDeck> {
 
     if (appStore.state.deck != null && appStore.state.deck!.gambles > 0) {
       for (var i = 0; i < appStore.state.deck!.gambles; i++) {
-        cards.add(card_model.Card(
-            thumbnail: [card_model.Thumbnail(path: imageBackLoading)]));
+        cards.add(GambleModel(
+          card: card_model.CardModel(
+            thumbnail: [card_model.Thumbnail(path: imageBackLoading)],
+          ),
+          expiresIn: null,
+        ));
       }
     }
   }
 
-  Future<card_model.Card> getCardGumble({int index = 0}) async {
-    var cardFetch = await gambleConnection.gambleCard();
+  Future<void> getCardGamble({int index = 0}) async {
+    try {
+      setState(() {
+        isLoading = true;
+      });
 
-    var newCards = List<card_model.Card>.from(cards);
+      var cardFetch = await gambleConnection.gambleCard();
 
-    newCards[index] = cardFetch;
-    setState(() {
+      var newCards = List<GambleModel>.from(cards);
+
+      newCards[index] = cardFetch;
       cards = [...newCards];
-      currentCard = cardFetch;
-    });
 
-    return cardFetch;
+      setState(() {
+        isLoading = false;
+        currentCard = cardFetch;
+      });
+
+      schedulerExpiration(cardFetch);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    }
   }
 
-  void handleStartGumble() {
-    setState(() {
-      isStarded = true;
-    });
-    getCardGumble();
+  void schedulerExpiration(GambleModel gambleItem) {
+    var diff = gambleItem.diffInSeconds();
+
+    Timer(
+      Duration(seconds: diff),
+      () {
+        setState(() {});
+      },
+    );
+  }
+
+  void navigateToDashboard() {
+    Navigator.pushNamed(context, RouterPaths.home);
+  }
+
+  bool isAbleToClaim(DeckState deck) {
+    if (deck.claims == 0) {
+      return false;
+    }
+
+    if (isStarted && currentCard != null) {
+      return !currentCard!.isExpired();
+    }
+
+    return false;
   }
 
   @override
@@ -71,32 +117,71 @@ class _CardSwiperDeckState extends State<CardSwiperDeck> {
             child: Swiper(
               itemBuilder: (BuildContext context, int index) {
                 var currentItem = cards[index];
-                var thumb = currentItem.thumbnail!.first;
+                var thumb = currentItem.card.thumbnail!.first;
 
+                var cardHeight = MediaQuery.of(context).size.height * 0.90;
+                var cardWidth = MediaQuery.of(context).size.width * 0.85;
+
+                if (thumb.path == imageBackLoading) {
+                  return ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: Image.asset(
+                      thumb.path!,
+                      fit: BoxFit.fill,
+                      height: cardHeight,
+                      width: cardWidth,
+                    ),
+                  );
+                }
+
+                var duration = Duration(
+                  seconds: currentItem.diffInSecondsByNow(),
+                );
                 return Stack(
                   children: [
                     ClipRRect(
-                      borderRadius: BorderRadius.circular(8.0),
-                      child: thumb.path == imageBackLoading
-                          ? Image.asset(
-                              thumb.path!,
-                              fit: BoxFit.fill,
-                              height: MediaQuery.of(context).size.height * 0.90,
-                            )
-                          : Image.network(
-                              thumb.path!,
-                              fit: BoxFit.fill,
-                              height: MediaQuery.of(context).size.height * 0.90,
-                              width: MediaQuery.of(context).size.width * 0.85,
-                            ),
+                      borderRadius: BorderRadius.circular(16),
+                      child: Image.network(
+                        thumb.path!,
+                        fit: BoxFit.fill,
+                        height: cardHeight,
+                        width: cardWidth,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) {
+                            return child;
+                          }
+                          return Stack(
+                            children: [
+                              Image.asset(
+                                imageBackLoading,
+                                fit: BoxFit.fill,
+                              ),
+                            ],
+                          );
+                        },
+                      ),
                     ),
                     Container(
-                      alignment: Alignment.bottomCenter,
-                      child: Text(
-                        currentItem.name ?? '',
-                        style: const TextStyle(color: AppTheme.white),
+                      alignment: Alignment.topRight,
+                      padding: const EdgeInsets.all(AppTheme.spacing * 2),
+                      child: CardTimeClaimProgress(
+                        expiresInDuration: duration,
                       ),
-                    )
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        gradient: const LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            Colors.black87,
+                          ],
+                        ),
+                      ),
+                    ),
+                    CardItemInfo(currentCard: currentCard!.card),
                   ],
                 );
               },
@@ -104,13 +189,23 @@ class _CardSwiperDeckState extends State<CardSwiperDeck> {
               itemWidth: MediaQuery.of(context).size.width * 0.85,
               itemHeight: MediaQuery.of(context).size.height * 0.90,
               layout: SwiperLayout.STACK,
-              allowImplicitScrolling: false,
-              loop: false,
+              allowImplicitScrolling: true,
+              loop: true,
               axisDirection: AxisDirection.right,
-              onIndexChanged: (newIndex) {
-                getCardGumble(index: newIndex);
+              onTap: (newIndex) {
+                setState(() {
+                  isStarted = true;
+                });
+                if (cards[newIndex].expiresIn == null) {
+                  getCardGamble(index: newIndex);
+                }
               },
               controller: swiperControl,
+              onIndexChanged: (index) {
+                setState(() {
+                  currentCard = cards[index];
+                });
+              },
             ),
           ),
           const SizedBox(
@@ -123,11 +218,7 @@ class _CardSwiperDeckState extends State<CardSwiperDeck> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ElevatedButton(
-                  onPressed: isStarded
-                      ? () {
-                          swiperControl.next();
-                        }
-                      : null,
+                  onPressed: () => navigateToDashboard(),
                   style: ElevatedButton.styleFrom(
                     shape: const CircleBorder(),
                     padding: const EdgeInsets.all(AppTheme.spacing * 2),
@@ -136,38 +227,29 @@ class _CardSwiperDeckState extends State<CardSwiperDeck> {
                   ),
                   child: const Icon(Icons.close, size: 32),
                 ),
-                ElevatedButton(
-                  onPressed: isStarded
-                      ? () {
-                          gambleConnection.claimCard(currentCard.id!);
-                        }
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                    shape: const CircleBorder(),
-                    padding: const EdgeInsets.all(AppTheme.spacing * 2),
-                    elevation: 3,
-                    backgroundColor: AppTheme.green,
+                StoreConnector<AppState, DeckState>(
+                  converter: (store) => store.state.deck!,
+                  builder: (context, deck) => ElevatedButton(
+                    onPressed: isAbleToClaim(deck)
+                        ? () {
+                            gambleConnection.claimCard(currentCard!.card.id!);
+                          }
+                        : null,
+                    style: ElevatedButton.styleFrom(
+                      shape: const CircleBorder(),
+                      padding: const EdgeInsets.all(AppTheme.spacing * 2),
+                      elevation: 3,
+                      backgroundColor: AppTheme.green,
+                    ),
+                    child: const Icon(
+                      Icons.check_circle_outline_rounded,
+                      size: 32,
+                    ),
                   ),
-                  child:
-                      const Icon(Icons.check_circle_outline_rounded, size: 32),
                 ),
               ],
             ),
           ),
-          ElevatedButton(
-            onPressed: () {
-              if (isStarded) {
-                Navigator.pop(context);
-              } else {
-                handleStartGumble();
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              elevation: 3,
-              backgroundColor: AppTheme.blurple,
-            ),
-            child: Text(isStarded ? 'Cancel' : 'Start'),
-          )
         ],
       ),
     );
