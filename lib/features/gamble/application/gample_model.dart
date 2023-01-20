@@ -2,25 +2,20 @@ import 'package:card_nft_app/features/card/application/card_model.dart';
 
 class GambleModel {
   final CardModel card;
-  final DateTime? expiresIn;
-  late final DateTime requestTime;
+  final int? expiresInSeconds;
+  late final DateTime expiresIn;
 
-  GambleModel({required this.card, required this.expiresIn}) {
-    requestTime = DateTime.now();
+  GambleModel({required this.card, required this.expiresInSeconds}) {
+    expiresIn = DateTime.now().add(Duration(seconds: expiresInSeconds ?? 0));
   }
 
-  int diffInSeconds() {
-    return expiresIn!.difference(requestTime).inSeconds;
-  }
-
-  int diffInSecondsByNow() {
-    return expiresIn!.difference(DateTime.now()).inSeconds;
+  Duration diffNow() {
+    return expiresIn.difference(DateTime.now());
   }
 
   bool isExpired() {
-    if (expiresIn != null) {
-      var difference = expiresIn!.difference(DateTime.now());
-      return difference.inSeconds <= 0;
+    if (expiresInSeconds != null) {
+      return diffNow().isNegative;
     }
 
     return true;

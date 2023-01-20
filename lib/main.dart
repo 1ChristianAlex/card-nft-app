@@ -8,6 +8,8 @@ import 'package:card_nft_app/features/gamble/gamble_screen.dart';
 import 'package:card_nft_app/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 import 'package:redux/redux.dart';
 
 import 'features/auth/screens/login_screen.dart';
@@ -30,15 +32,24 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return StoreProvider<AppState>(
       store: store,
-      child: MaterialApp(
-        title: 'Card NFT',
-        theme: currentTheme,
-        routes: {
-          RouterPaths.login: (context) => const LoginScreen(),
-          RouterPaths.register: (context) => const RegisterScreen(),
-          RouterPaths.home: (context) => const RouterAuth(DashboardScreen()),
-          RouterPaths.gamble: (context) => const RouterAuth(GambleScreen()),
-        },
+      child: GlobalLoaderOverlay(
+        useDefaultLoading: false,
+        overlayWidget: const Center(
+          child: SpinKitRing(
+            color: AppTheme.green,
+            size: 50.0,
+          ),
+        ),
+        child: MaterialApp(
+          title: 'Card NFT',
+          theme: currentTheme,
+          routes: {
+            RouterPaths.login: (context) => const LoginScreen(),
+            RouterPaths.register: (context) => const RegisterScreen(),
+            RouterPaths.home: (context) => const RouterAuth(DashboardScreen()),
+            RouterPaths.gamble: (context) => const RouterAuth(GambleScreen()),
+          },
+        ),
       ),
     );
   }

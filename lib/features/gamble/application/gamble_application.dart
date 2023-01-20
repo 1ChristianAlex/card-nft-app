@@ -15,7 +15,10 @@ class GambleApplication extends ApplicationState {
   Future<GambleModel> gambleCard() async {
     var response = await repo.doGamble();
 
-    return GambleModel(card: response.card!, expiresIn: response.expiresIn!);
+    return GambleModel(
+      card: response.card!,
+      expiresInSeconds: response.expiresInSeconds!,
+    );
   }
 
   Future<void> claimCard(int cardId) async {

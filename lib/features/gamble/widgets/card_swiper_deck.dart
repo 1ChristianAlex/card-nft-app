@@ -1,20 +1,15 @@
 import 'dart:async';
-
-import 'package:card_nft_app/common/state/app/app_state.dart';
-import 'package:card_nft_app/common/state/deck/deck_state.dart';
 import 'package:card_nft_app/common/state/store.dart';
-import 'package:card_nft_app/constants.dart';
 import 'package:card_nft_app/features/card/application/card_model.dart'
     as card_model;
 import 'package:card_nft_app/features/card/application/card_model.dart';
 import 'package:card_nft_app/features/gamble/application/gamble_application.dart';
 import 'package:card_nft_app/features/gamble/application/gample_model.dart';
 import 'package:card_nft_app/features/gamble/widgets/card_item_info.dart';
-import 'package:card_nft_app/features/gamble/widgets/card_time_claim_progress.dart';
+import 'package:card_nft_app/features/gamble/widgets/card_action_button.dart';
 import 'package:card_nft_app/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:card_swiper/card_swiper.dart';
-import 'package:flutter_redux/flutter_redux.dart';
 import 'package:skeletons/skeletons.dart';
 
 class CardSwiperDeck extends StatefulWidget {
@@ -27,11 +22,9 @@ class CardSwiperDeck extends StatefulWidget {
 class _CardSwiperDeckState extends State<CardSwiperDeck> {
   final imageBackLoading = 'assets/card-back-lol.png';
 
-  List<GambleModel> cards = [];
-  GambleModel? currentCard;
+  List<GambleModel> gambles = [];
+  GambleModel? currentGamble;
   bool isLoading = false;
-
-  bool isStarted = false;
 
   SwiperController swiperControl = SwiperController();
 
@@ -41,36 +34,36 @@ class _CardSwiperDeckState extends State<CardSwiperDeck> {
 
     if (appStore.state.deck != null && appStore.state.deck!.gambles > 0) {
       for (var i = 0; i < appStore.state.deck!.gambles; i++) {
-        cards.add(GambleModel(
-          card: card_model.CardModel(
+        gambles.add(GambleModel(
+          card: CardModel(
             thumbnail: [card_model.ThumbnailModel(path: imageBackLoading)],
           ),
-          expiresIn: null,
+          expiresInSeconds: null,
         ));
       }
     }
   }
 
-  Future<void> getCardGamble({int index = 0}) async {
+  Future<void> getGamble(int index) async {
     try {
       setState(() {
         isLoading = true;
       });
 
-      var cardFetch = await gambleConnection.gambleCard();
+      var gambleFetch = await gambleConnection.gambleCard();
 
-      var newCards = List<GambleModel>.from(cards);
+      var newGambles = List<GambleModel>.from(gambles);
 
-      newCards[index] = cardFetch;
+      newGambles[index] = gambleFetch;
 
-      cards = [...newCards];
+      gambles = [...newGambles];
 
       setState(() {
         isLoading = false;
-        currentCard = cardFetch;
+        currentGamble = gambleFetch;
       });
 
-      schedulerExpiration(cardFetch);
+      schedulerExpiration(gambleFetch);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(e.toString())),
@@ -79,34 +72,16 @@ class _CardSwiperDeckState extends State<CardSwiperDeck> {
   }
 
   void schedulerExpiration(GambleModel gambleItem) {
-    var diff = gambleItem.diffInSeconds();
-
     Timer(
-      Duration(seconds: diff),
+      Duration(seconds: gambleItem.expiresInSeconds!),
       () {
         setState(() {});
       },
     );
   }
 
-  void navigateToDashboard() {
-    Navigator.pushNamed(context, RouterPaths.home);
-  }
-
-  bool isAbleToClaim(DeckState deck) {
-    if (deck.claims == 0) {
-      return false;
-    }
-
-    if (isStarted && currentCard != null) {
-      return !currentCard!.isExpired();
-    }
-
-    return false;
-  }
-
   void changeCurrentThumbnail(int indexCard) {
-    var currentCartToChange = cards[indexCard];
+    var currentCartToChange = gambles[indexCard];
 
     var thumbList = currentCartToChange.card.thumbnail!;
 
@@ -120,12 +95,12 @@ class _CardSwiperDeckState extends State<CardSwiperDeck> {
 
     currentCartToChange.card.thumbnail = newOrderThumb;
 
-    var newCardsList = [...cards];
+    var newCardsList = [...gambles];
 
     newCardsList[indexCard] = currentCartToChange;
 
     setState(() {
-      cards = newCardsList;
+      gambles = newCardsList;
     });
   }
 
@@ -144,7 +119,7 @@ class _CardSwiperDeckState extends State<CardSwiperDeck> {
         children: [
           Expanded(
             child: Swiper(
-              itemCount: cards.length,
+              itemCount: gambles.length,
               itemWidth: cardWidth,
               itemHeight: cardHeight,
               layout: SwiperLayout.TINDER,
@@ -152,11 +127,8 @@ class _CardSwiperDeckState extends State<CardSwiperDeck> {
               loop: true,
               axisDirection: AxisDirection.right,
               onTap: (newIndex) {
-                setState(() {
-                  isStarted = true;
-                });
-                if (cards[newIndex].expiresIn == null) {
-                  getCardGamble(index: newIndex);
+                if (gambles[newIndex].expiresInSeconds == null) {
+                  getGamble(newIndex);
                 } else {
                   changeCurrentThumbnail(newIndex);
                 }
@@ -164,12 +136,12 @@ class _CardSwiperDeckState extends State<CardSwiperDeck> {
               controller: swiperControl,
               onIndexChanged: (index) {
                 setState(() {
-                  currentCard = cards[index];
+                  currentGamble = gambles[index];
                 });
               },
               itemBuilder: (BuildContext context, int index) {
-                var currentItem = cards[index];
-                var thumb = currentItem.card.thumbnail!.first;
+                var gambleItem = gambles[index];
+                var thumb = gambleItem.card.thumbnail!.first;
                 var isLoading = true;
 
                 if (thumb.path == imageBackLoading) {
@@ -177,15 +149,12 @@ class _CardSwiperDeckState extends State<CardSwiperDeck> {
                     borderRadius: BorderRadius.circular(16),
                     child: Image.asset(
                       thumb.path!,
-                      fit: BoxFit.fill,
+                      fit: BoxFit.cover,
                       height: cardHeight,
                       width: cardWidth,
                     ),
                   );
                 }
-                var duration = Duration(
-                  seconds: currentItem.diffInSecondsByNow(),
-                );
 
                 return Stack(
                   children: [
@@ -214,13 +183,14 @@ class _CardSwiperDeckState extends State<CardSwiperDeck> {
                         },
                       ),
                     ),
-                    Container(
-                      alignment: Alignment.topRight,
-                      padding: const EdgeInsets.all(AppTheme.spacing * 2),
-                      child: CardTimeClaimProgress(
-                        expiresInDuration: duration,
-                      ),
-                    ),
+                    // Container(
+                    //   alignment: Alignment.topRight,
+                    //   padding: const EdgeInsets.all(AppTheme.spacing * 2),
+                    //   child: CardTimeClaimProgress(
+                    //     maxSeconds: gambleItem.expiresInSeconds!,
+                    //     currentLastSeconds: gambleItem.diffNow().inSeconds,
+                    //   ),
+                    // ),
                     Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(16),
@@ -241,66 +211,11 @@ class _CardSwiperDeckState extends State<CardSwiperDeck> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          CardItemInfo(currentCard: currentItem.card),
+                          CardItemInfo(currentCard: gambleItem.card),
                           const SizedBox(
                             height: AppTheme.spacing * 2,
                           ),
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.45,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                OutlinedButton(
-                                  onPressed: () => navigateToDashboard(),
-                                  style: OutlinedButton.styleFrom(
-                                    shape: const CircleBorder(),
-                                    padding: const EdgeInsets.all(
-                                      AppTheme.spacing * 2.3,
-                                    ),
-                                    elevation: 3,
-                                    backgroundColor: Colors.transparent,
-                                    side: const BorderSide(
-                                      width: 2.0,
-                                      color: AppTheme.red,
-                                    ),
-                                  ),
-                                  child: const Icon(
-                                    Icons.arrow_back_outlined,
-                                    size: 32,
-                                    color: AppTheme.red,
-                                  ),
-                                ),
-                                StoreConnector<AppState, DeckState>(
-                                  converter: (store) => store.state.deck!,
-                                  builder: (context, deck) => OutlinedButton(
-                                    onPressed: isAbleToClaim(deck)
-                                        ? () {
-                                            gambleConnection.claimCard(
-                                                currentItem.card.id!);
-                                          }
-                                        : () {},
-                                    style: OutlinedButton.styleFrom(
-                                      shape: const CircleBorder(),
-                                      padding: const EdgeInsets.all(
-                                        AppTheme.spacing * 2.3,
-                                      ),
-                                      elevation: 3,
-                                      backgroundColor: Colors.transparent,
-                                      side: const BorderSide(
-                                        width: 2.0,
-                                        color: AppTheme.green,
-                                      ),
-                                    ),
-                                    child: const Icon(
-                                      Icons.check_circle_outline_rounded,
-                                      size: 32,
-                                      color: AppTheme.green,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                          CardActionButton(currentGamble: gambleItem),
                           const SizedBox(
                             height: AppTheme.spacing * 2,
                           ),
