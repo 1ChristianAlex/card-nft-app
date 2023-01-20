@@ -6,6 +6,7 @@ import 'package:card_nft_app/common/state/store.dart';
 import 'package:card_nft_app/constants.dart';
 import 'package:card_nft_app/features/card/application/card_model.dart'
     as card_model;
+import 'package:card_nft_app/features/card/application/card_model.dart';
 import 'package:card_nft_app/features/gamble/application/gamble_application.dart';
 import 'package:card_nft_app/features/gamble/application/gample_model.dart';
 import 'package:card_nft_app/features/gamble/widgets/card_item_info.dart';
@@ -14,6 +15,7 @@ import 'package:card_nft_app/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter_redux/flutter_redux.dart';
+import 'package:skeletons/skeletons.dart';
 
 class CardSwiperDeck extends StatefulWidget {
   const CardSwiperDeck({super.key});
@@ -41,7 +43,7 @@ class _CardSwiperDeckState extends State<CardSwiperDeck> {
       for (var i = 0; i < appStore.state.deck!.gambles; i++) {
         cards.add(GambleModel(
           card: card_model.CardModel(
-            thumbnail: [card_model.Thumbnail(path: imageBackLoading)],
+            thumbnail: [card_model.ThumbnailModel(path: imageBackLoading)],
           ),
           expiresIn: null,
         ));
@@ -60,6 +62,7 @@ class _CardSwiperDeckState extends State<CardSwiperDeck> {
       var newCards = List<GambleModel>.from(cards);
 
       newCards[index] = cardFetch;
+
       cards = [...newCards];
 
       setState(() {
@@ -102,8 +105,35 @@ class _CardSwiperDeckState extends State<CardSwiperDeck> {
     return false;
   }
 
+  void changeCurrentThumbnail(int indexCard) {
+    var currentCartToChange = cards[indexCard];
+
+    var thumbList = currentCartToChange.card.thumbnail!;
+
+    List<ThumbnailModel> newOrderThumb = [];
+
+    for (var indexThumb = 1; indexThumb < thumbList.length; indexThumb++) {
+      newOrderThumb.add(thumbList[indexThumb]);
+    }
+
+    newOrderThumb.add(thumbList.first);
+
+    currentCartToChange.card.thumbnail = newOrderThumb;
+
+    var newCardsList = [...cards];
+
+    newCardsList[indexCard] = currentCartToChange;
+
+    setState(() {
+      cards = newCardsList;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    var cardHeight = MediaQuery.of(context).size.height * 0.90;
+    var cardWidth = MediaQuery.of(context).size.width * 0.85;
+
     return Container(
       margin: const EdgeInsets.only(
         top: kToolbarHeight,
@@ -118,9 +148,7 @@ class _CardSwiperDeckState extends State<CardSwiperDeck> {
               itemBuilder: (BuildContext context, int index) {
                 var currentItem = cards[index];
                 var thumb = currentItem.card.thumbnail!.first;
-
-                var cardHeight = MediaQuery.of(context).size.height * 0.90;
-                var cardWidth = MediaQuery.of(context).size.width * 0.85;
+                var isLoading = true;
 
                 if (thumb.path == imageBackLoading) {
                   return ClipRRect(
@@ -133,10 +161,10 @@ class _CardSwiperDeckState extends State<CardSwiperDeck> {
                     ),
                   );
                 }
-
                 var duration = Duration(
                   seconds: currentItem.diffInSecondsByNow(),
                 );
+
                 return Stack(
                   children: [
                     ClipRRect(
@@ -146,17 +174,20 @@ class _CardSwiperDeckState extends State<CardSwiperDeck> {
                         fit: BoxFit.fill,
                         height: cardHeight,
                         width: cardWidth,
+                        frameBuilder:
+                            (context, child, frame, wasSynchronouslyLoaded) {
+                          isLoading = frame == null;
+                          return child;
+                        },
                         loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) {
+                          if (loadingProgress == null && !isLoading) {
                             return child;
                           }
-                          return Stack(
-                            children: [
-                              Image.asset(
-                                imageBackLoading,
-                                fit: BoxFit.fill,
-                              ),
-                            ],
+                          return SkeletonLine(
+                            style: SkeletonLineStyle(
+                              height: cardHeight,
+                              width: cardWidth,
+                            ),
                           );
                         },
                       ),
@@ -178,16 +209,17 @@ class _CardSwiperDeckState extends State<CardSwiperDeck> {
                             Colors.transparent,
                             Colors.black87,
                           ],
+                          stops: [0.5, 1],
                         ),
                       ),
                     ),
-                    CardItemInfo(currentCard: currentCard!.card),
+                    CardItemInfo(currentCard: currentItem.card),
                   ],
                 );
               },
               itemCount: cards.length,
-              itemWidth: MediaQuery.of(context).size.width * 0.85,
-              itemHeight: MediaQuery.of(context).size.height * 0.90,
+              itemWidth: cardWidth,
+              itemHeight: cardHeight,
               layout: SwiperLayout.STACK,
               allowImplicitScrolling: true,
               loop: true,
@@ -198,6 +230,8 @@ class _CardSwiperDeckState extends State<CardSwiperDeck> {
                 });
                 if (cards[newIndex].expiresIn == null) {
                   getCardGamble(index: newIndex);
+                } else {
+                  changeCurrentThumbnail(newIndex);
                 }
               },
               controller: swiperControl,

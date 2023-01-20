@@ -4,10 +4,11 @@ import 'package:flutter/material.dart';
 
 class CardItemInfo extends StatelessWidget {
   final CardModel currentCard;
-  final int thumbCurrent = 1;
+  late final int thumbCurrent;
   late final int thumbLenght;
 
   CardItemInfo({super.key, required this.currentCard}) {
+    thumbCurrent = currentCard.thumbnail!.first.position! + 1;
     thumbLenght = currentCard.thumbnail!.length;
   }
 

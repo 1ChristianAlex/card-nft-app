@@ -5,7 +5,7 @@ class CardModel {
   int? price;
   int? likes;
   Tier? tier;
-  List<Thumbnail>? thumbnail;
+  List<ThumbnailModel>? thumbnail;
 
   CardModel(
       {this.id,
@@ -24,9 +24,9 @@ class CardModel {
     likes = json['likes'];
     tier = json['tier'] != null ? Tier.fromJson(json['tier']) : null;
     if (json['thumbnail'] != null) {
-      thumbnail = <Thumbnail>[];
+      thumbnail = <ThumbnailModel>[];
       json['thumbnail'].forEach((v) {
-        thumbnail!.add(Thumbnail.fromJson(v));
+        thumbnail!.add(ThumbnailModel.fromJson(v));
       });
     }
   }
@@ -73,15 +73,15 @@ class Tier {
   }
 }
 
-class Thumbnail {
+class ThumbnailModel {
   int? id;
   String? description;
   String? path;
   int? position;
 
-  Thumbnail({this.id, this.description, this.path, this.position});
+  ThumbnailModel({this.id, this.description, this.path, this.position});
 
-  Thumbnail.fromJson(Map<String, dynamic> json) {
+  ThumbnailModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     description = json['description'];
     path = json['path'];
