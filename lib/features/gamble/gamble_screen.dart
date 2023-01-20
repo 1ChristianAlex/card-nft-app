@@ -8,7 +8,7 @@ class GambleScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-      backgroundColor: AppTheme.arsenic,
+      backgroundColor: AppTheme.darkCharcoal,
       // floatingActionButton: FloatingActionButton(
       //   onPressed: () async {
       //     authConnetion.logout();

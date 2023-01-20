@@ -15,7 +15,7 @@ class CardItemInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(AppTheme.spacing * 3),
+      padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacing * 1),
       alignment: Alignment.bottomLeft,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.end,
@@ -37,7 +37,7 @@ class CardItemInfo extends StatelessWidget {
                 '$thumbCurrent/$thumbLenght',
                 style: const TextStyle(
                   color: AppTheme.white,
-                  fontSize: 18,
+                  fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
               ),

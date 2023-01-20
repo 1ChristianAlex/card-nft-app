@@ -25,7 +25,7 @@ class CardSwiperDeck extends StatefulWidget {
 }
 
 class _CardSwiperDeckState extends State<CardSwiperDeck> {
-  final imageBackLoading = 'assets/back-image-card.jpg';
+  final imageBackLoading = 'assets/card-back-lol.png';
 
   List<GambleModel> cards = [];
   GambleModel? currentCard;
@@ -131,20 +131,42 @@ class _CardSwiperDeckState extends State<CardSwiperDeck> {
 
   @override
   Widget build(BuildContext context) {
-    var cardHeight = MediaQuery.of(context).size.height * 0.90;
-    var cardWidth = MediaQuery.of(context).size.width * 0.85;
+    const fullSize = Size.fromWidth(double.infinity);
+
+    var cardHeight = fullSize.height;
+    var cardWidth = fullSize.width;
 
     return Container(
       margin: const EdgeInsets.only(
-        top: kToolbarHeight,
-        left: AppTheme.spacing,
-        right: AppTheme.spacing,
         bottom: AppTheme.spacing,
       ),
       child: Column(
         children: [
           Expanded(
             child: Swiper(
+              itemCount: cards.length,
+              itemWidth: cardWidth,
+              itemHeight: cardHeight,
+              layout: SwiperLayout.TINDER,
+              allowImplicitScrolling: true,
+              loop: true,
+              axisDirection: AxisDirection.right,
+              onTap: (newIndex) {
+                setState(() {
+                  isStarted = true;
+                });
+                if (cards[newIndex].expiresIn == null) {
+                  getCardGamble(index: newIndex);
+                } else {
+                  changeCurrentThumbnail(newIndex);
+                }
+              },
+              controller: swiperControl,
+              onIndexChanged: (index) {
+                setState(() {
+                  currentCard = cards[index];
+                });
+              },
               itemBuilder: (BuildContext context, int index) {
                 var currentItem = cards[index];
                 var thumb = currentItem.card.thumbnail!.first;
@@ -171,7 +193,7 @@ class _CardSwiperDeckState extends State<CardSwiperDeck> {
                       borderRadius: BorderRadius.circular(16),
                       child: Image.network(
                         thumb.path!,
-                        fit: BoxFit.fill,
+                        fit: BoxFit.cover,
                         height: cardHeight,
                         width: cardWidth,
                         frameBuilder:
@@ -213,76 +235,85 @@ class _CardSwiperDeckState extends State<CardSwiperDeck> {
                         ),
                       ),
                     ),
-                    CardItemInfo(currentCard: currentItem.card),
+                    Container(
+                      alignment: Alignment.bottomCenter,
+                      margin: const EdgeInsets.all(AppTheme.spacing * 1),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          CardItemInfo(currentCard: currentItem.card),
+                          const SizedBox(
+                            height: AppTheme.spacing * 2,
+                          ),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.45,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                OutlinedButton(
+                                  onPressed: () => navigateToDashboard(),
+                                  style: OutlinedButton.styleFrom(
+                                    shape: const CircleBorder(),
+                                    padding: const EdgeInsets.all(
+                                      AppTheme.spacing * 2.3,
+                                    ),
+                                    elevation: 3,
+                                    backgroundColor: Colors.transparent,
+                                    side: const BorderSide(
+                                      width: 2.0,
+                                      color: AppTheme.red,
+                                    ),
+                                  ),
+                                  child: const Icon(
+                                    Icons.arrow_back_outlined,
+                                    size: 32,
+                                    color: AppTheme.red,
+                                  ),
+                                ),
+                                StoreConnector<AppState, DeckState>(
+                                  converter: (store) => store.state.deck!,
+                                  builder: (context, deck) => OutlinedButton(
+                                    onPressed: isAbleToClaim(deck)
+                                        ? () {
+                                            gambleConnection.claimCard(
+                                                currentItem.card.id!);
+                                          }
+                                        : () {},
+                                    style: OutlinedButton.styleFrom(
+                                      shape: const CircleBorder(),
+                                      padding: const EdgeInsets.all(
+                                        AppTheme.spacing * 2.3,
+                                      ),
+                                      elevation: 3,
+                                      backgroundColor: Colors.transparent,
+                                      side: const BorderSide(
+                                        width: 2.0,
+                                        color: AppTheme.green,
+                                      ),
+                                    ),
+                                    child: const Icon(
+                                      Icons.check_circle_outline_rounded,
+                                      size: 32,
+                                      color: AppTheme.green,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(
+                            height: AppTheme.spacing * 2,
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 );
-              },
-              itemCount: cards.length,
-              itemWidth: cardWidth,
-              itemHeight: cardHeight,
-              layout: SwiperLayout.STACK,
-              allowImplicitScrolling: true,
-              loop: true,
-              axisDirection: AxisDirection.right,
-              onTap: (newIndex) {
-                setState(() {
-                  isStarted = true;
-                });
-                if (cards[newIndex].expiresIn == null) {
-                  getCardGamble(index: newIndex);
-                } else {
-                  changeCurrentThumbnail(newIndex);
-                }
-              },
-              controller: swiperControl,
-              onIndexChanged: (index) {
-                setState(() {
-                  currentCard = cards[index];
-                });
               },
             ),
           ),
           const SizedBox(
             height: AppTheme.spacing,
-          ),
-          Container(
-            margin: const EdgeInsets.all(AppTheme.spacing * 1),
-            width: MediaQuery.of(context).size.width * 0.4,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                ElevatedButton(
-                  onPressed: () => navigateToDashboard(),
-                  style: ElevatedButton.styleFrom(
-                    shape: const CircleBorder(),
-                    padding: const EdgeInsets.all(AppTheme.spacing * 2),
-                    elevation: 3,
-                    backgroundColor: AppTheme.red,
-                  ),
-                  child: const Icon(Icons.close, size: 32),
-                ),
-                StoreConnector<AppState, DeckState>(
-                  converter: (store) => store.state.deck!,
-                  builder: (context, deck) => ElevatedButton(
-                    onPressed: isAbleToClaim(deck)
-                        ? () {
-                            gambleConnection.claimCard(currentCard!.card.id!);
-                          }
-                        : null,
-                    style: ElevatedButton.styleFrom(
-                      shape: const CircleBorder(),
-                      padding: const EdgeInsets.all(AppTheme.spacing * 2),
-                      elevation: 3,
-                      backgroundColor: AppTheme.green,
-                    ),
-                    child: const Icon(
-                      Icons.check_circle_outline_rounded,
-                      size: 32,
-                    ),
-                  ),
-                ),
-              ],
-            ),
           ),
         ],
       ),
