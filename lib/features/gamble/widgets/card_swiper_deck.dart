@@ -148,7 +148,7 @@ class _CardSwiperDeckState extends State<CardSwiperDeck> {
                   return ClipRRect(
                     borderRadius: BorderRadius.circular(16),
                     child: Image.asset(
-                      thumb.path!,
+                      imageBackLoading,
                       fit: BoxFit.cover,
                       height: cardHeight,
                       width: cardWidth,
@@ -215,7 +215,10 @@ class _CardSwiperDeckState extends State<CardSwiperDeck> {
                           const SizedBox(
                             height: AppTheme.spacing * 2,
                           ),
-                          CardActionButton(currentGamble: gambleItem),
+                          CardActionButton(
+                            currentGamble: gambleItem,
+                            swiperControl: swiperControl,
+                          ),
                           const SizedBox(
                             height: AppTheme.spacing * 2,
                           ),

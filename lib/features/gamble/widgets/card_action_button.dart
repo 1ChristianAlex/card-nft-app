@@ -1,16 +1,23 @@
 import 'package:card_nft_app/common/state/app/app_state.dart';
 import 'package:card_nft_app/common/state/deck/deck_state.dart';
-import 'package:card_nft_app/constants.dart';
+import 'package:card_nft_app/features/gamble/application/gamble_application.dart';
 import 'package:card_nft_app/features/gamble/application/gample_model.dart';
-import 'package:card_nft_app/features/gamble/widgets/card_action_bottom_sheets.dart';
 import 'package:card_nft_app/theme/theme.dart';
+import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 
 class CardActionButton extends StatelessWidget {
   final GambleModel currentGamble;
 
-  const CardActionButton({super.key, required this.currentGamble});
+  final SwiperController swiperControl;
+
+  const CardActionButton({
+    super.key,
+    required this.currentGamble,
+    required this.swiperControl,
+  });
 
   bool isAbleToClaim(DeckState deck) {
     if (deck.claims == 0) {
@@ -20,10 +27,14 @@ class CardActionButton extends StatelessWidget {
     return !currentGamble.isExpired();
   }
 
+  void handleNextCartControl() => swiperControl.previous();
+
   @override
   Widget build(BuildContext context) {
-    void navigateToDashboard() {
-      Navigator.pushNamed(context, RouterPaths.home);
+    Future<void> doClaimCard() async {
+      context.loaderOverlay.show();
+      await gambleConnection.claimCard(currentGamble.card.id!);
+      context.loaderOverlay.hide();
     }
 
     return SizedBox(
@@ -32,7 +43,7 @@ class CardActionButton extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           OutlinedButton(
-            onPressed: () => navigateToDashboard(),
+            onPressed: handleNextCartControl,
             style: OutlinedButton.styleFrom(
               shape: const CircleBorder(),
               padding: const EdgeInsets.all(
@@ -46,7 +57,7 @@ class CardActionButton extends StatelessWidget {
               ),
             ),
             child: const Icon(
-              Icons.arrow_back_outlined,
+              Icons.close,
               size: 32,
               color: AppTheme.red,
             ),
@@ -54,12 +65,7 @@ class CardActionButton extends StatelessWidget {
           StoreConnector<AppState, DeckState>(
             converter: (store) => store.state.deck!,
             builder: (context, deck) {
-              var onClaimPress = isAbleToClaim(deck)
-                  ? () {
-                      CardActionBottomSheets(context: context)
-                          .showClaimBottomSheet(currentGamble);
-                    }
-                  : null;
+              var onClaimPress = isAbleToClaim(deck) ? doClaimCard : null;
 
               return OutlinedButton(
                 onPressed: onClaimPress,
